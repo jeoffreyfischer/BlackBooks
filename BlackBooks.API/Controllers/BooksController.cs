@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using BlackBooks_API.Services;
+using Microsoft.AspNetCore.Mvc;
 
 namespace BlackBooks.API.Controllers;
 
@@ -6,40 +7,42 @@ namespace BlackBooks.API.Controllers;
 [Route("[controller]")]
 public class BooksController : ControllerBase
 {
-    // TODO: Add private Services here, e.g.:
-    // private readonly SomeService _someService;
-
-    // TODO: Implement logging
+    private readonly BookService _bookService;
     private readonly ILogger<BooksController> _logger;
-    
-    public BooksController(ILogger<BooksController> logger)
+
+    public BooksController(ILogger<BooksController> logger, BookService bookService)
     {
-        // TODO: Inject Services here, e.g.:
-        // this._someService = someService;
-        this._logger = logger;
+        _bookService = bookService;
+        _logger = logger;
     }
-    
+
     [HttpGet("All")]
     public ActionResult<List<string>> GetAll()
     {
-        // TODO: Move this to BooksService
-        return new List<string>
-        { 
-            "Book 1", 
-            "Book 2",
-            "Book 3",
-            "Book 4"
-        };
+        try
+        {
+            var allBooks = _bookService.GetAll();
+            return allBooks;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "An unexpected error occured.");
+            return StatusCode(500, "An unexpected error occured. Please try again later");
+        }
     }
 
     [HttpGet("Search/{searchTerm}")]
     public ActionResult<List<string>> Search(string searchTerm)
     {
-        // TODO: Move this to BooksService
-        return new List<string>
-        { 
-            $"Book 1 containing { searchTerm }", 
-            $"Book 2 containing { searchTerm }"
-        };
+        try
+        {
+            var searchedBooks = _bookService.Search(searchTerm);
+            return searchedBooks;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "An unexpected error occured.");
+            return StatusCode(500, "An unexpected error occured. Please try again later");
+        }
     }
 }
